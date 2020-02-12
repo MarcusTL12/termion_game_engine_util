@@ -1,12 +1,13 @@
+use std::io::Write;
+
 use termion::{
-    clear, color, cursor,
-    event::{Event, Key, MouseButton, MouseEvent},
-    style,
+    color, cursor,
+    event::{Event, MouseButton, MouseEvent},
 };
 
-use termion_game_engine::{GameObject};
+use termion_game_engine::{col2fg_str, GameObject};
 
-struct Button {
+pub struct Button {
     c1: (u16, u16),
     c2: (u16, u16),
     col: Vec<u8>,
@@ -16,7 +17,11 @@ struct Button {
 }
 
 impl Button {
-    fn new<T: color::Color>(pos: (u16, u16), size: (u16, u16), col: T) -> Self {
+    pub fn new<T: color::Color>(
+        pos: (u16, u16),
+        size: (u16, u16),
+        col: T,
+    ) -> Self {
         Button {
             c1: pos,
             c2: (pos.0 + size.0 - 1, pos.1 + size.1 - 1),
@@ -29,7 +34,7 @@ impl Button {
     fn isinside(&self, (x, y): (u16, u16)) -> bool {
         x >= self.c1.0 && x <= self.c2.0 && y >= self.c1.1 && y <= self.c2.1
     }
-    fn pressed(&mut self, mousebutton: MouseButton) -> bool {
+    pub fn pressed(&mut self, mousebutton: MouseButton) -> bool {
         if let Some(mb) = self.mousepress {
             self.mousepress = None;
             mb == mousebutton
@@ -37,14 +42,14 @@ impl Button {
             false
         }
     }
-    fn held(&self, mousebutton: MouseButton) -> bool {
+    pub fn held(&self, mousebutton: MouseButton) -> bool {
         if let Some(mb) = self.mouseheld {
             mb == mousebutton
         } else {
             false
         }
     }
-    fn released(&mut self, mousebutton: MouseButton) -> bool {
+    pub fn released(&mut self, mousebutton: MouseButton) -> bool {
         if let Some(mb) = self.mouserelease {
             self.mouserelease = None;
             mb == mousebutton
@@ -96,7 +101,8 @@ impl GameObject for Button {
                 )
                 .unwrap();
             }
-            write!(buff, "\n{}", cursor::Left(self.c2.0 - self.c1.0 + 1)).unwrap();
+            write!(buff, "\n{}", cursor::Left(self.c2.0 - self.c1.0 + 1))
+                .unwrap();
         }
     }
 }
