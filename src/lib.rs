@@ -26,6 +26,19 @@ pub const BOX_MIX: &[char] = &[
     '┨', '╂', '╊', '┫', '╉', '╋',
 ];
 
+pub fn box_mix(dirs: [Option<bool>; 4]) -> char {
+    let ind = dirs
+        .iter()
+        .fold((0usize, 1usize), |(a, b), &x| {
+            (
+                a + if let Some(x) = x { 1 + x as usize } else { 0 } * b,
+                b * 3,
+            )
+        })
+        .0;
+    BOX_MIX[ind]
+}
+
 pub struct Button {
     c1: (u16, u16),
     c2: (u16, u16),
