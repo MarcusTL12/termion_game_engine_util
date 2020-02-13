@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 termion = ""
-termion_game_engine = {git = "https://github.com/MarcusTL12/termion_game_engine", branch = "master"}
+termion_game_engine = {git = "https://github.com/MarcusTL12/termion_game_engine", branch = "Dev"}
