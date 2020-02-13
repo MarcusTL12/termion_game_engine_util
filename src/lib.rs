@@ -106,3 +106,32 @@ impl GameObject for Button {
         }
     }
 }
+
+pub struct TextLabel {
+    pos: (u16, u16),
+    text: String,
+    col: Vec<u8>,
+}
+
+impl TextLabel {
+    pub fn new<T: color::Color>(pos: (u16, u16), text: String, col: T) -> Self {
+        TextLabel {
+            pos: pos,
+            text: text,
+            col: col2fg_str(col),
+        }
+    }
+}
+
+impl GameObject for TextLabel {
+    fn render(&mut self, buff: &mut Vec<u8>) {
+        buff.extend(self.col.iter());
+        write!(
+            buff,
+            "{}{}",
+            cursor::Goto(self.pos.0, self.pos.1),
+            self.text
+        )
+        .unwrap();
+    }
+}
