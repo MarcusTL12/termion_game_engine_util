@@ -1,4 +1,4 @@
-use std::io::Write;
+use std::{error::Error, io::Write};
 
 use termion::{
     color, cursor,
@@ -27,7 +27,7 @@ pub const BOX_MIX: &[char] = &[
 ];
 
 pub fn box_mix(dirs: [Option<bool>; 4]) -> char {
-    let ind = dirs
+    BOX_MIX[dirs
         .iter()
         .fold((0usize, 1usize), |(a, b), &x| {
             (
@@ -35,8 +35,7 @@ pub fn box_mix(dirs: [Option<bool>; 4]) -> char {
                 b * 3,
             )
         })
-        .0;
-    BOX_MIX[ind]
+        .0]
 }
 
 pub struct Button {
@@ -53,15 +52,15 @@ impl Button {
         pos: (u16, u16),
         size: (u16, u16),
         col: T,
-    ) -> Self {
-        Button {
+    ) -> Result<Self, Box<dyn Error>> {
+        Ok(Button {
             c1: pos,
             c2: (pos.0 + size.0 - 1, pos.1 + size.1 - 1),
-            col: col2fg_str(col),
+            col: col2fg_str(col)?,
             mousepress: None,
             mouseheld: None,
             mouserelease: None,
-        }
+        })
     }
     fn isinside(&self, (x, y): (u16, u16)) -> bool {
         x >= self.c1.0 && x <= self.c2.0 && y >= self.c1.1 && y <= self.c2.1
@@ -116,8 +115,8 @@ impl GameObject for Button {
             _ => (),
         }
     }
-    fn render(&mut self, buff: &mut Vec<u8>) {
-        write!(buff, "{}", cursor::Goto(self.c1.0, self.c1.1)).unwrap();
+    fn render(&mut self, buff: &mut Vec<u8>) -> Result<(), Box<dyn Error>> {
+        write!(buff, "{}", cursor::Goto(self.c1.0, self.c1.1))?;
         buff.extend(self.col.iter());
         for _ in self.c1.1..self.c2.1 + 1 {
             for _ in self.c1.0..self.c2.0 + 1 {
@@ -133,9 +132,9 @@ impl GameObject for Button {
                 )
                 .unwrap();
             }
-            write!(buff, "\n{}", cursor::Left(self.c2.0 - self.c1.0 + 1))
-                .unwrap();
+            write!(buff, "\n{}", cursor::Left(self.c2.0 - self.c1.0 + 1))?;
         }
+        Ok(())
     }
 }
 
@@ -146,24 +145,28 @@ pub struct TextLabel {
 }
 
 impl TextLabel {
-    pub fn new<T: color::Color>(pos: (u16, u16), text: String, col: T) -> Self {
-        TextLabel {
+    pub fn new<T: color::Color>(
+        pos: (u16, u16),
+        text: String,
+        col: T,
+    ) -> Result<Self, Box<dyn Error>> {
+        Ok(TextLabel {
             pos: pos,
             text: text,
-            col: col2fg_str(col),
-        }
+            col: col2fg_str(col)?,
+        })
     }
 }
 
 impl GameObject for TextLabel {
-    fn render(&mut self, buff: &mut Vec<u8>) {
+    fn render(&mut self, buff: &mut Vec<u8>) -> Result<(), Box<dyn Error>> {
         buff.extend(self.col.iter());
         write!(
             buff,
             "{}{}",
             cursor::Goto(self.pos.0, self.pos.1),
             self.text
-        )
-        .unwrap();
+        )?;
+        Ok(())
     }
 }
