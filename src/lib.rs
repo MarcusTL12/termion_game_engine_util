@@ -129,11 +129,11 @@ impl GameObject for Button {
                     } else {
                         '▒'
                     }
-                )
-                .unwrap();
+                )?;
             }
             write!(buff, "\n{}", cursor::Left(self.c2.0 - self.c1.0 + 1))?;
         }
+        write!(buff, "{}", color::Fg(color::Reset))?;
         Ok(())
     }
 }
@@ -163,9 +163,10 @@ impl GameObject for TextLabel {
         buff.extend(self.col.iter());
         write!(
             buff,
-            "{}{}",
+            "{}{}{}",
             cursor::Goto(self.pos.0, self.pos.1),
-            self.text
+            self.text,
+            color::Fg(color::Reset)
         )?;
         Ok(())
     }
